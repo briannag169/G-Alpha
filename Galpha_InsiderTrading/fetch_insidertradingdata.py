@@ -48,6 +48,7 @@ def fetch_and_store_data():
     #collection.insert_one({'column_names': column_names})
 
     print("Column names inserted into MongoDB successfully.")
+    collection.create_index("ticker_date_shares_shareprice_owned", unique=True)
 
     # Store the API data in MongoDB
     #collection.create_index("ticker_date", unique=True)
@@ -78,6 +79,8 @@ def flatten_filing(filing):
                 "codingCode": transaction["coding"]["code"],
                 "acquiredDisposed": transaction["amounts"]["acquiredDisposedCode"],
                 "shares": transaction["amounts"]["shares"],
+                "ticker_date_shares_shareprice_owned": f"{filing['reportingOwner']['name']}_{str(filing['periodOfReport'])}_{transaction['amounts']['shares']}_{transaction['amounts'].get('pricePerShare', None)}_{transaction['postTransactionAmounts']['sharesOwnedFollowingTransaction']}",  # Combine tradingSymbol and periodOfReport
+
                 "sharePrice": transaction["amounts"].get("pricePerShare", None),  # Use get method with default value
                 "total": math.ceil(
                     transaction["amounts"]["shares"] * transaction["amounts"].get("pricePerShare", 0)
